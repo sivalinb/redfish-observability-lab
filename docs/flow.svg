@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 410" role="img" aria-labelledby="title desc">
+  <title id="title">Redfish management and OpenTelemetry observability</title>
+  <desc id="desc">A simulated server and independent BMC expose Redfish HTTP. Python converts readings and events to OpenTelemetry metrics and logs. The application emits traces. A local viewer shows them, and an optional Collector routes them to Grafana backends.</desc>
+  <style>
+    text{font-family:system-ui,-apple-system,sans-serif;fill:#edf4ff}.small{font-size:12px;fill:#a3b2c7}.label{font-size:17px;font-weight:600}.flow{stroke-dasharray:6 8;animation:flow 1.4s linear infinite}.fan{transform-origin:139px 192px;animation:spin 2s linear infinite}@keyframes flow{to{stroke-dashoffset:-28}}@keyframes spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.flow,.fan{animation:none}}
+  </style>
+  <rect width="1120" height="410" rx="18" fill="#0b1524"/>
+  <text x="36" y="41" font-size="12" fill="#56e0df" letter-spacing="2">THE HARDWARE → APPLICATION CONNECTION</text>
+  <text x="36" y="78" font-size="30" font-weight="700">Redfish Observatory<tspan fill="#56e0df">.</tspan></text>
+  <text x="36" y="102" class="small">Simulated hardware · Real Python + Gradio · Real OpenTelemetry SDK</text>
+  <g fill="none" stroke="#56e0df" stroke-width="2" class="flow">
+    <path d="M220 180H274M425 180H464M617 180H657M810 180H852"/>
+    <path d="M734 222V285H851" stroke="#b99aff"/>
+    <path d="M390 320H734V222" stroke="#b99aff"/>
+  </g>
+  <rect x="36" y="135" width="184" height="108" rx="12" fill="#15273a" stroke="#56e0df"/>
+  <text x="53" y="163" class="label">Server + BMC</text>
+  <circle cx="139" cy="192" r="20" fill="#0b1524" stroke="#3b626b"/>
+  <path class="fan" d="M139 189C121 176 123 170 134 177L141 189C157 174 166 179 153 190L142 195C156 210 150 217 142 204L136 195C120 210 114 204 128 194Z" fill="#56e0df"/>
+  <circle cx="139" cy="192" r="4" fill="#153e48"/>
+  <text x="53" y="228" class="small">Independent management</text>
+  <rect x="274" y="135" width="151" height="87" rx="12" fill="#15273a" stroke="#56e0df"/>
+  <text x="288" y="166" class="label">Redfish HTTP</text><text x="288" y="190" class="small">Poll or push</text><text x="288" y="207" class="small">JSON resources / events</text>
+  <rect x="464" y="135" width="153" height="87" rx="12" fill="#15273a" stroke="#56e0df"/>
+  <text x="478" y="166" class="label">Python adapter</text><text x="478" y="190" class="small">Readings → metrics</text><text x="478" y="207" class="small">Fault events → logs</text>
+  <rect x="657" y="135" width="153" height="87" rx="12" fill="#25213c" stroke="#b99aff"/>
+  <text x="672" y="166" class="label">OTel SDK</text><text x="672" y="190" class="small">Metrics · logs · traces</text><text x="672" y="207" class="small">Real exporters</text>
+  <rect x="852" y="135" width="231" height="87" rx="12" fill="#2b2930" stroke="#ffca80"/>
+  <text x="868" y="166" class="label">Local signal viewer</text><text x="868" y="190" class="small">Bounded recent SDK records</text><text x="868" y="207" class="small">Works without a backend</text>
+  <rect x="205" y="276" width="185" height="68" rx="12" fill="#25213c" stroke="#b99aff"/>
+  <text x="221" y="303" class="label">Application</text><text x="221" y="327" class="small">Actual request traces</text>
+  <rect x="852" y="250" width="231" height="94" rx="12" fill="#131f30" stroke="#576e8b"/>
+  <text x="868" y="278" class="label">Optional Collector</text><text x="868" y="302" class="small">OTLP → Prometheus / Loki / Tempo</text><text x="868" y="326" class="small">Grafana dashboards</text>
+  <text x="36" y="381" class="small">Correlate by server identity + time. Sampling, collection and export intervals determine freshness.</text>
+</svg>

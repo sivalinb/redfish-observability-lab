@@ -1,0 +1,28 @@
+services:
+  lab:
+    build: .
+    ports:
+      - "127.0.0.1:7860:7860"
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4318
+    depends_on:
+      - collector
+  collector:
+    image: otel/opentelemetry-collector-contrib:0.157.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./infra/collector.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "127.0.0.1:4318:4318"
+    depends_on:
+      - lgtm
+  lgtm:
+    image: grafana/otel-lgtm:0.30.0
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:9090:9090"
+    environment:
+      ENABLE_LOGS_ALL: "true"
+    volumes:
+      - ./infra/grafana-dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/redfish.yaml:ro
+      - ./infra/grafana-dashboard.json:/redfish-dashboards/redfish.json:ro

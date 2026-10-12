@@ -1,0 +1,320 @@
+{
+  "uid": "redfish-observatory",
+  "title": "Redfish Observatory",
+  "tags": [
+    "redfish",
+    "opentelemetry",
+    "learning-lab"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "editable": true,
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "links": [],
+  "templating": {
+    "list": [
+      {
+        "name": "instance",
+        "label": "Simulated rack session",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values({__name__=~\"lab_hardware_health.*\",job=\"redfish-observatory\"},instance)",
+        "query": {
+          "query": "label_values({__name__=~\"lab_hardware_health.*\",job=\"redfish-observatory\"},instance)",
+          "refId": "VariableQuery"
+        },
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false,
+        "options": []
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "From hardware to application",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Simulated hardware → Redfish HTTP → Python adapter → real OpenTelemetry SDK → Collector → LGTM.**\n\nChoose a session above. In the Gradio lab, inject **Fan failure**: RPM falls, temperature rises, then the measured checkout duration increases. Logs and traces below are real SDK exports. Each browser has a separate `service.instance.id`. This is a development stack."
+      }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "CPU temperature",
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{__name__=~\"lab_hardware_temperature.*\",job=\"redfish-observatory\",instance=~\"$instance\"}",
+          "legendFormat": "CPU temperature"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#56e0df"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "drawStyle": "line",
+            "showPoints": "auto",
+            "spanNulls": false
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "single"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Cooling fan 1",
+      "gridPos": {
+        "x": 12,
+        "y": 3,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{__name__=~\"lab_hardware_fan_speed.*\",job=\"redfish-observatory\",instance=~\"$instance\"}",
+          "legendFormat": "Cooling fan 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "rpm",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#ffca80"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "drawStyle": "line",
+            "showPoints": "auto",
+            "spanNulls": false
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "single"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Server power",
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{__name__=~\"lab_hardware_power.*\",job=\"redfish-observatory\",instance=~\"$instance\"}",
+          "legendFormat": "Server power"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#77b5ff"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "drawStyle": "line",
+            "showPoints": "auto",
+            "spanNulls": false
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "single"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Mean checkout duration",
+      "gridPos": {
+        "x": 12,
+        "y": 11,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "1000 * sum(rate({__name__=~\"lab_application_request_duration.*_sum\",job=\"redfish-observatory\",instance=~\"$instance\"}[1m])) / clamp_min(sum(rate({__name__=~\"lab_application_request_duration.*_count\",job=\"redfish-observatory\",instance=~\"$instance\"}[1m])), 0.001)",
+          "legendFormat": "Mean checkout duration"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#b99aff"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "drawStyle": "line",
+            "showPoints": "auto",
+            "spanNulls": false
+          },
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "single"
+        },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "logs",
+      "title": "Hardware events and application logs · all lab sessions",
+      "gridPos": {
+        "x": 0,
+        "y": 19,
+        "w": 12,
+        "h": 10
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"redfish-observatory\"}",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      }
+    },
+    {
+      "id": 7,
+      "type": "table",
+      "title": "Application trace search · all lab sessions",
+      "gridPos": {
+        "x": 12,
+        "y": 19,
+        "w": 12,
+        "h": 10
+      },
+      "datasource": {
+        "type": "tempo",
+        "uid": "tempo"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "{ resource.service.name = \"redfish-observatory\" }",
+          "queryType": "traceql",
+          "tableType": "traces",
+          "limit": 20
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      }
+    }
+  ]
+}
