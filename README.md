@@ -2,7 +2,7 @@
 
 **Learn server management and near real-time observability by operating a simulated rack.**
 
-An illustrated Python + Gradio project: spinning fans, animated signal paths, changing sensor charts, executable Redfish management lessons, and actual OpenTelemetry metrics, logs, and traces. No server hardware or observability backend is needed to start.
+An illustrated Python + Gradio project: spinning fans, animated signal paths, changing sensor charts, executable Redfish management lessons, **100 practical use cases with Python samples**, and actual OpenTelemetry metrics, logs, and traces. No server hardware or observability backend is needed to start.
 
 ![Redfish to OpenTelemetry flow](docs/flow.svg)
 
@@ -55,6 +55,26 @@ Every management lesson includes a plain-language explanation, animated request 
 | Telemetry reports | Inspect MetricReportDefinitions and MetricReports | Periodic push reports feed OTel measurements |
 
 The ten Management studio lessons cover the first ten rows; the API explorer and Signal pipeline cover logs, events and telemetry reports.
+
+## Explore 100 practical use cases
+
+Open the **100 use cases** tab. Search by problem or keyword, filter by area and operation, or select a row in the full numbered list. Every case has an explanation of why Redfish fits, an animated flow, the expected result, required hardware capabilities, an official schema link and a downloadable Python sample. Download all 100 together as a ZIP.
+
+The ten areas each contain ten cases: discovery and inventory; health and diagnostics; power and energy; boot and BIOS provisioning; firmware and maintenance; storage and data; networks and fabrics; security and access; facilities and fleet; events and OpenTelemetry. The library contains **54 read examples, 38 change examples and 8 OpenTelemetry integrations**. It is curated for useful learning scenarios; its numbering is for navigation.
+
+Read the [complete catalog and all 100 samples](docs/USE_CASES.md) without starting Gradio. **Inspect simulator resource** reads a related local teaching endpoint when one exists. Facilities, fabric management and many advanced hardware features require a compatible device; the simulator does not implement all 100 workflows.
+
+Hardware recipes are displayed for review and run separately using the included discovery-based [recipe client](redfish_lab/recipe_client.py). It uses verified HTTPS, follows local resource links and pagination, and previews POST/PATCH/DELETE operations by default. Read the catalog's setup notes before enabling any hardware change. The separate GET-only observer remains available below.
+
+```bash
+python examples/catalog.py --search temperature
+python examples/catalog.py --case 95
+python examples/catalog.py --export-samples ./downloaded-recipes
+```
+
+The OTel recipes use real SDK gauges, logs and spans, with console or OTLP HTTP/protobuf export. They cover fault logs, metric reports, temperature, power, server identity, polling latency, stale samples and hardware/application correlation.
+
+![The 100-use-case catalog with an illustrated OpenTelemetry flow and a Python temperature sample](docs/use-cases.jpg)
 
 ## What is real, and what is simulated?
 
@@ -165,7 +185,7 @@ python -m pytest -q
 python -m pip check
 ```
 
-Tests cover management state transitions, permission denials, asynchronous completion, invalid writes, session isolation, polling delays, HTTP callbacks, event deduplication, trace relationships, sensor discovery, escaping, motion controls and OTLP protobuf serialization for all three signals. GitHub Actions runs the Python suite and an optional-stack smoke check. [Architecture notes](docs/ARCHITECTURE.md) explain the modules and timing.
+Tests cover management state transitions, permission denials, asynchronous completion, invalid writes, session isolation, polling delays, HTTP callbacks, event deduplication, trace relationships, sensor discovery, escaping, motion controls and OTLP protobuf serialization for all three signals. Catalog checks compile every sample, execute compatible examples through the teaching API, check search and downloads, and verify write previews, resource selection, pagination, ETags and actual OTel exports. GitHub Actions runs the Python suite and an optional-stack smoke check. [Architecture notes](docs/ARCHITECTURE.md) explain the modules and timing.
 
 ```text
 redfish_lab/model.py       Simulated hardware and management state
@@ -175,6 +195,10 @@ redfish_lab/telemetry.py   Actual OTel SDK providers and exporters
 redfish_lab/visuals.py     SVG rack, charts, animated flows and lessons
 redfish_lab/app.py         Gradio tabs and controls
 redfish_lab/readonly.py    Separate HTTPS GET-only hardware client
+redfish_lab/use_cases.py   Searchable catalog, diagrams, code and downloads
+redfish_lab/assets/use_cases.json  The 100 curated recipes (source of truth)
+redfish_lab/recipe_client.py       Opt-in HTTPS recipe client; writes preview by default
+redfish_lab/recipe_telemetry.py    Real SDK exporters for the OTel recipes
 examples/                 Simulator client and opt-in hardware observer
 infra/                    Collector and Grafana provisioning
 tests/                    Behavioral tests and stack smoke check
@@ -183,6 +207,7 @@ tests/                    Behavioral tests and stack smoke check
 ## Learn from the standards
 
 - [DMTF Redfish overview](https://www.dmtf.org/standards/redfish) explains the management standard.
+- [DMTF Resource and Schema Guide, 2026.2](https://www.dmtf.org/sites/default/files/standards/documents/DSP2046_2026.2.pdf) documents the resource models behind the catalog. Each case links directly to its official JSON schema.
 - [Redfish specification](https://redfish.dmtf.org/schemas/DSP0266_1.20.1.html) defines resources, actions, Settings, Tasks and events.
 - [DMTF Telemetry white paper](https://www.dmtf.org/sites/default/files/standards/documents/DSP2051_1.1.0.pdf) describes periodic and event-driven metric reports and sample timestamps.
 - [OpenTelemetry concepts](https://opentelemetry.io/docs/what-is-opentelemetry/) and [Python exporters](https://opentelemetry.io/docs/languages/python/exporters/) explain the signals and SDK integration.

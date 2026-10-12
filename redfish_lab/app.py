@@ -9,7 +9,7 @@ from pathlib import Path
 import gradio as gr
 import uvicorn
 
-from . import visuals
+from . import use_cases, visuals
 from .api import make_api
 from .lessons import LESSONS, payload_for
 from .runtime import LabRegistry
@@ -83,6 +83,90 @@ def create_app(background=True):
                             "**Measurements continue** when animation is disabled. Reduced motion preferences are respected."
                         )
                 live_note = gr.Markdown("Starting your simulated rack…")
+            with gr.Tab("100 use cases", id="catalog"):
+                gr.HTML("""<div class="rf-catalog-heading"><div>
+<div class="rf-eyebrow">THE PRACTICAL REDFISH LIBRARY</div>
+<h2>100 ways to use Redfish.</h2>
+<p>Find a real problem, understand the flow, and take a Python example with you.</p>
+</div><div class="rf-catalog-total">100<small>examples · 10 areas</small></div></div>""")
+                with gr.Row():
+                    catalog_search = gr.Textbox(
+                        label="Search use cases",
+                        placeholder="Try temperature, PXE, RAID, certificate or OpenTelemetry…",
+                        scale=3,
+                    )
+                    catalog_area = gr.Dropdown(
+                        ["All areas", *use_cases.CATEGORIES],
+                        value="All areas",
+                        label="Area",
+                        scale=2,
+                    )
+                    catalog_kind = gr.Dropdown(
+                        ["All operations", *use_cases.KINDS],
+                        value="All operations",
+                        label="Operation",
+                        scale=1,
+                    )
+                    catalog_clear = gr.Button("Clear filters", scale=0)
+                catalog_count = gr.HTML(use_cases.count_html(use_cases.CATALOG))
+                catalog_matches = gr.State([case.id for case in use_cases.CATALOG])
+                catalog_selection = gr.State(1)
+                catalog_choice = gr.Dropdown(
+                    [(case.label, case.id) for case in use_cases.CATALOG],
+                    value=1,
+                    label="Choose a use case — or select a row in the full list below",
+                    interactive=True,
+                )
+                with gr.Row():
+                    with gr.Column(scale=2):
+                        catalog_detail = gr.HTML(use_cases.detail_html(1))
+                        catalog_inspect = gr.Button("Inspect simulator resource", interactive=True)
+                        with gr.Accordion("Local simulator response", open=False):
+                            catalog_response = gr.JSON(label="Teaching resource · GET only")
+                    with gr.Column(scale=3):
+                        catalog_code = gr.Code(
+                            value=use_cases.BY_ID[1].code,
+                            language="python",
+                            interactive=False,
+                            label="Python sample · install this project first",
+                            lines=23,
+                            max_lines=32,
+                            wrap_lines=True,
+                            elem_classes=["rf-python-sample"],
+                        )
+                        with gr.Row():
+                            catalog_download = gr.DownloadButton(
+                                "Download this Python sample",
+                                value=use_cases.sample_path(1),
+                            )
+                            gr.DownloadButton(
+                                "Download all 100 samples (.zip)",
+                                value=str(
+                                    use_cases.sample_directory() / "redfish-100-python-samples.zip"
+                                ),
+                            )
+                        gr.Markdown(
+                            "**Reads use verified HTTPS. Changes preview the request by default.** "
+                            "The catalog displays code for you to review and run separately. "
+                            "Each example names its device requirements."
+                        )
+                with gr.Accordion("Setup, credentials and example scope", open=False):
+                    gr.Markdown(use_cases.SETUP)
+                gr.Markdown(
+                    "### All matching use cases\nSelect any row to open its explanation and code. The numbered library is curated for learning; device support varies."
+                )
+                catalog_table = gr.Dataframe(
+                    value=use_cases.table_rows(use_cases.CATALOG),
+                    headers=["#", "Use case", "Area", "Operation", "Schema"],
+                    datatype="str",
+                    type="array",
+                    interactive=False,
+                    max_height=520,
+                    wrap=True,
+                    column_widths=[55, 350, 210, 120, 180],
+                    label="100 Redfish use cases",
+                    show_row_numbers=False,
+                )
             with gr.Tab("Management studio", id="manage"):
                 with gr.Row():
                     with gr.Column(scale=2):
@@ -235,6 +319,84 @@ Redfish service or an authenticated management controller. Every control targets
             inputs=[session_id, motion, choice],
             outputs=[*views, lesson],
             queue=False,
+        )
+
+        def filter_catalog(query, category, kind, selected):
+            cases = use_cases.search_cases(query, category, kind)
+            ids = [case.id for case in cases]
+            selection = selected if selected in ids else (ids[0] if ids else None)
+            return [
+                use_cases.table_rows(cases),
+                use_cases.count_html(cases),
+                ids,
+                gr.update(choices=[(case.label, case.id) for case in cases], value=selection),
+            ]
+
+        for control in (catalog_search, catalog_area, catalog_kind):
+            control.change(
+                filter_catalog,
+                inputs=[catalog_search, catalog_area, catalog_kind, catalog_selection],
+                outputs=[catalog_table, catalog_count, catalog_matches, catalog_choice],
+                queue=False,
+            )
+        catalog_clear.click(
+            lambda: ["", "All areas", "All operations"],
+            outputs=[catalog_search, catalog_area, catalog_kind],
+            queue=False,
+        )
+
+        def open_case(selected, animate):
+            case = use_cases.BY_ID.get(selected)
+            return [
+                use_cases.detail_html(selected, animate),
+                case.code if case else "",
+                gr.update(value=use_cases.sample_path(selected), interactive=case is not None),
+                gr.update(interactive=bool(case and case.demo_path)),
+                None,
+                selected,
+            ]
+
+        catalog_choice.change(
+            open_case,
+            inputs=[catalog_choice, motion],
+            outputs=[
+                catalog_detail,
+                catalog_code,
+                catalog_download,
+                catalog_inspect,
+                catalog_response,
+                catalog_selection,
+            ],
+            queue=False,
+        )
+        motion.change(
+            use_cases.detail_html,
+            inputs=[catalog_choice, motion],
+            outputs=catalog_detail,
+            queue=False,
+        )
+
+        def select_case(ids, event: gr.SelectData):
+            # Use the displayed row's identity so sorting cannot select another case.
+            selected = use_cases.row_case_id(event.row_value, ids)
+            return gr.update(value=selected) if selected is not None else gr.skip()
+
+        catalog_table.select(
+            select_case, inputs=catalog_matches, outputs=catalog_choice, queue=False
+        )
+
+        async def inspect_catalog_resource(sid, selected):
+            case = use_cases.BY_ID.get(selected)
+            if not case or not case.demo_path:
+                return {"message": "This case requires compatible real hardware."}
+            s = registry.get(sid)
+            await registry.request(s, "GET", case.demo_path)
+            return s.model.last_request
+
+        catalog_inspect.click(
+            inspect_catalog_resource,
+            inputs=[session_id, catalog_choice],
+            outputs=catalog_response,
         )
 
         async def scenario(sid, selected, percent, animate):

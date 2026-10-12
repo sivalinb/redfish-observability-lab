@@ -297,6 +297,7 @@ class ServerModel:
                     Id="RootService",
                     Name="Redfish Observatory simulator",
                     RedfishVersion="1.20.0",
+                    Tasks={"@odata.id": "/redfish/v1/TaskService"},
                     **{
                         name: {"@odata.id": f"/redfish/v1/{name}"}
                         for name in [

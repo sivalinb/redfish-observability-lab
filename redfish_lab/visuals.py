@@ -15,7 +15,7 @@ HEADER = """<div class="rf-hero"><div><div class="rf-eyebrow">AN INTERACTIVE HAR
 <p>Operate a server. Watch the hardware. Follow every signal from the management controller to OpenTelemetry.</p>
 <div class="rf-badges"><span class="rf-pill"><span class="rf-dot"></span>Simulated hardware</span>
 <span class="rf-pill">Real Redfish-shaped HTTP</span><span class="rf-pill">Real OpenTelemetry SDK</span>
-<span class="rf-pill">10 management capabilities</span></div></div>
+<span class="rf-pill">10 management capabilities</span><span class="rf-pill">100 Python use cases</span></div></div>
 <div class="rf-logo"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
 <rect x="7" y="5" width="30" height="34" rx="5" fill="none" stroke="#56e0df" stroke-width="1.5"/>
 <path d="M12 14h20M12 23h20M12 32h20" stroke="#56e0df" stroke-width="1.5"/>
