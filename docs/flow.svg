@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 410" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="410" viewBox="0 0 1120 410" role="img" aria-labelledby="title desc">
   <title id="title">Redfish management and OpenTelemetry observability</title>
   <desc id="desc">A simulated server and independent BMC expose Redfish HTTP. Python converts readings and events to OpenTelemetry metrics and logs. The application emits traces. A local viewer shows them, and an optional Collector routes them to Grafana backends.</desc>
   <style>
